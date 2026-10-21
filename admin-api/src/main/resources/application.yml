@@ -71,6 +71,21 @@ spring:
     baseline-version: 1
     locations: classpath:db/migration
 
+  servlet:
+    multipart:
+      max-file-size: 8MB
+      max-request-size: 10MB
+
+# Supabase Storage for uploaded images (cake photos).
+# SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are read from the environment or .env.
+storage:
+  supabase:
+    url: ${SUPABASE_URL:}
+    key: ${SUPABASE_SERVICE_ROLE_KEY:}
+    bucket: ${SUPABASE_STORAGE_BUCKET:cake-images}
+    public-base-url: ${SUPABASE_PUBLIC_URL:}
+    max-file-size-mb: ${SUPABASE_MAX_FILE_SIZE_MB:5}
+
 server:
   port: ${SERVER_PORT:8082}
   servlet:

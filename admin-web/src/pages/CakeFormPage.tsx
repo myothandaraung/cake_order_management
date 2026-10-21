@@ -20,6 +20,7 @@ import { cakesService, categoriesService } from '@/lib/services'
 import { Category } from '@/types'
 import PageHeader from '@/components/ui/PageHeader'
 import Panel from '@/components/ui/Panel'
+import ImageUploader from '@/components/ui/ImageUploader'
 
 function FieldLabel({ children, htmlFor }: { children: React.ReactNode; htmlFor?: string }) {
   return (
@@ -48,6 +49,7 @@ export default function CakeFormPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -88,6 +90,7 @@ export default function CakeFormPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (uploadingImage) return
     setLoading(true)
     setError('')
     try {
@@ -129,8 +132,8 @@ export default function CakeFormPage() {
             <Button variant="outlined" onClick={() => navigate('/cakes')}>
               Cancel
             </Button>
-            <Button type="submit" form="cake-form" variant="contained" disabled={loading}>
-              {loading ? 'Saving…' : isEdit ? 'Save changes' : 'Create cake'}
+            <Button type="submit" form="cake-form" variant="contained" disabled={loading || uploadingImage}>
+              {uploadingImage ? 'Uploading photo…' : loading ? 'Saving…' : isEdit ? 'Save changes' : 'Create cake'}
             </Button>
           </>
         }
@@ -224,7 +227,17 @@ export default function CakeFormPage() {
               />
             </Box>
 
-            <Box>
+          </Box>
+        </Panel>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Panel title="Photo" subtitle="Drag a file in, or browse from your computer">
+            <ImageUploader
+              value={form.imageUrl}
+              onChange={(url) => setForm((prev) => ({ ...prev, imageUrl: url }))}
+              onBusyChange={setUploadingImage}
+            />
+            <Box sx={{ mt: 2 }}>
               <FieldLabel htmlFor="cake-image">Image URL</FieldLabel>
               <TextField
                 id="cake-image"
@@ -232,12 +245,11 @@ export default function CakeFormPage() {
                 placeholder="https://…"
                 value={form.imageUrl}
                 onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+                helperText="An upload fills this in automatically. You can also paste a link."
               />
             </Box>
-          </Box>
-        </Panel>
+          </Panel>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           <Panel title="Preview" subtitle="How the cake appears in the grid">
             <Box
               sx={{

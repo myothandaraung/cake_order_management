@@ -32,8 +32,9 @@ public class AuditLog {
     @Column(nullable = false)
     private String action;
 
+    // columnDefinition is deliberately omitted: Postgres maps JSON to jsonb, H2 to its JSON type.
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
+    @Column
     private String diff;
 
     @Column(name = "ip_address")

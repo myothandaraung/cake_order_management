@@ -1,7 +1,7 @@
 import { api } from './api'
 import {
   AdminUser, AuditLog, Cake, CakeFlavor, CakeSize, Category, CreateAdminUserRequest, CreateCakeRequest,
-  Customer, CustomerDetail, DashboardMetrics, Favorite, Order, PageResponse, ReferenceRequest, Topping, UpdateAdminUserRequest, UpdateCakeFlagsRequest, UpdateCakeRequest, UpdateOrderStatusRequest
+  Customer, CustomerDetail, DashboardMetrics, Favorite, Order, PageResponse, ReferenceRequest, Topping, UpdateAdminUserRequest, UpdateCakeFlagsRequest, UpdateCakeRequest, UpdateOrderStatusRequest, UploadedFile
 } from '@/types'
 
 export const categoriesService = {
@@ -75,11 +75,19 @@ export const dashboardService = {
 }
 
 export const filesService = {
-  upload: (file: File) => {
+  /** Uploads an image to Supabase Storage and returns its public URL. */
+  upload: (
+    file: File,
+    options?: { folder?: string; onProgress?: (percent: number) => void },
+  ) => {
     const formData = new FormData()
     formData.append('file', file)
-    return api.post<{ url: string }>('/files', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+    return api.post<UploadedFile>('/files', formData, {
+      params: options?.folder ? { folder: options.folder } : undefined,
+      onUploadProgress: (event) => {
+        if (!options?.onProgress || !event.total) return
+        options.onProgress(Math.min(100, Math.round((event.loaded / event.total) * 100)))
+      },
     })
   },
 }

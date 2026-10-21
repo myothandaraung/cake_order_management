@@ -1,11 +1,13 @@
 package com.cakeordering.admin.common.exception;
 
 import com.cakeordering.admin.common.dto.ErrorResponse;
+import com.cakeordering.admin.files.exception.StorageException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -39,6 +41,20 @@ public class GlobalExceptionHandler {
         log.warn("Conflict: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse("CONFLICT", ex.getMessage(), null);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(StorageException.class)
+    public ResponseEntity<ErrorResponse> handleStorage(StorageException ex) {
+        log.error("Storage failure: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse("STORAGE_ERROR", ex.getMessage(), null);
+        return ResponseEntity.status(ex.getStatus()).body(error);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleUploadTooLarge(MaxUploadSizeExceededException ex) {
+        ErrorResponse error = new ErrorResponse(
+                "UPLOAD_TOO_LARGE", "That image is too large. Please upload a smaller file.", null);
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(error);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

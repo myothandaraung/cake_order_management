@@ -75,6 +75,12 @@ export interface UpdateCakeFlagsRequest {
   isNewArrival: boolean
 }
 
+export interface UploadedFile {
+  url: string
+  path: string
+  bucket: string
+}
+
 export interface Order {
   id: string
   orderNumber: number

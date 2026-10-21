@@ -44,8 +44,9 @@ public class Cake {
     @Column(name = "is_new_arrival")
     private Boolean isNewArrival;
 
+    // columnDefinition is deliberately omitted: Postgres maps JSON to jsonb, H2 to its JSON type.
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "tags", columnDefinition = "jsonb")
+    @Column(name = "tags")
     private List<String> tags = new ArrayList<>();
 
     @Column(name = "is_archived")

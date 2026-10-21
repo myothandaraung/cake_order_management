@@ -1,5 +1,8 @@
 package com.cakeordering.admin.files.controller;
 
+import com.cakeordering.admin.files.dto.UploadResult;
+import com.cakeordering.admin.files.service.SupabaseStorageService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -7,17 +10,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Map;
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/files")
+@RequiredArgsConstructor
 public class FilesController {
 
+    private final SupabaseStorageService storageService;
+
+    /**
+     * Uploads an image to Supabase Storage and returns its public URL, which the caller
+     * stores on the entity (for cakes: {@code image_url}).
+     */
     @PostMapping
-    public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
-        // Stub implementation - in production would upload to Supabase Storage
-        String fileUrl = "https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1000";
-        return ResponseEntity.ok(Map.of("url", fileUrl));
+    public ResponseEntity<UploadResult> uploadFile(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "folder", required = false, defaultValue = "cakes") String folder) {
+        return ResponseEntity.ok(storageService.upload(file, folder));
     }
 }
